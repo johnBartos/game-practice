@@ -3,11 +3,11 @@
 const canvas = document.getElementById('gameCanvas');
 const context = canvas.getContext('2d');
 
-let x = canvas.width / 2;
-let y = canvas.height - 30;
+let ballX = canvas.width / 2;
+let ballY = canvas.height - 30;
 
-let boxX = 20;
-let boxY = 20;
+let ctrlX = 20;
+let ctrlY = 20;
 const speed = 2;
 
 let dx = 1;
@@ -49,27 +49,37 @@ const keyUpHandler = (e) => {
   }
 };
 
+const detectCollision = () => {
+  const xDiff = ballX - ctrlX;
+  const yDiff = ballY - ctrlY;
+  const distance = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+  if (distance < radius + radius) {
+    dx = -dx;
+    dy = -dy;
+  }
+};
+
 const drawBall = () => {
   context.beginPath();
-  context.arc(x, y, radius, 0, Math.PI * 2);
+  context.arc(ballX, ballY, radius, 0, Math.PI * 2);
   context.fillStyle = '#FF0000';
   context.fill();
   context.closePath();
 };
 
 const moveBall = () => {
-  if (y + dy < radius || y + dy > canvas.height - radius) {
+  if (ballY + dy < radius || ballY + dy > canvas.height - radius) {
     dy = -dy;
   }
 
-  if (x + dx > canvas.width - radius || x + dx < radius) {
+  if (ballX + dx > canvas.width - radius || ballX + dx < radius) {
     dx = -dx;
   }
 };
 
-const drawBox = () => {
+const drawControlBall = () => {
   context.beginPath();
-  context.rect(boxX, boxY, 20, 40);
+  context.arc(ctrlX, ctrlY, radius * 2, 0, Math.PI * 2);
   context.fillStyle = '#FF0000';
   context.fill();
   context.closePath();
@@ -77,27 +87,28 @@ const drawBox = () => {
 
 const moveBox = () => {
   if (left) {
-    boxX -= speed;
+    ctrlX -= speed;
   }
   if (right) {
-    boxX += speed;
+    ctrlX += speed;
   }
   if (up) {
-    boxY -= speed;
+    ctrlY -= speed;
   }
   if (down) {
-    boxY += speed;
+    ctrlY += speed;
   }
 };
 
 const draw = () => {
   context.clearRect(0, 0, canvas.width, canvas.height);
-  drawBox();
+  drawControlBall();
   drawBall();
   moveBox();
   moveBall();
-  x += dx;
-  y += dy;
+  detectCollision();
+  ballX += dx;
+  ballY += dy;
 };
 
 document.addEventListener('keydown', keyDownHandler, false);
